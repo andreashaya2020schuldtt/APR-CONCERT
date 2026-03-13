@@ -1,0 +1,1734 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;"><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#1F3864">
+<title>APR – Concert Engenharia</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue-dark:   #1F3864;
+  --blue-mid:    #2E75B6;
+  --blue-light:  #D6E4F3;
+  --blue-vlight: #EBF3FB;
+  --yellow:      #FFC000;
+  --orange:      #ED7D31;
+  --red:         #C00000;
+  --green:       #2EA84A;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  background: #E4E8ED;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+.nav-bar {
+  background: var(--blue-dark);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  height: 52px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+.nav-title { font-size: 14px; font-weight: bold; }
+.nav-actions { display: flex; gap: 6px; }
+.nav-btn {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  padding: 7px 11px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: Arial;
+  white-space: nowrap;
+}
+.nav-btn:active { background: rgba(255,255,255,.3); }
+
+#screen-setup .content,
+#screen-employees .content,
+#screen-risks .content {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 14px 12px 90px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 9px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.12);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.card-header {
+  background: var(--blue-dark);
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 9px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-header .badge {
+  background: rgba(255,255,255,.2);
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 10px;
+}
+.card-body { padding: 12px 14px; }
+
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.field-row:last-child { margin-bottom: 0; }
+.field-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #555;
+  min-width: 72px;
+}
+.f-input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: Arial;
+  outline: none;
+  transition: border-color .15s;
+}
+.f-input:focus { border-color: var(--blue-mid); }
+
+.os-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.os-item {
+  background: #F6F9FD;
+  border: 1px solid #DDE8F5;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.os-item .os-label {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--blue-dark);
+  display: block;
+  margin-bottom: 5px;
+}
+.os-item input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background: transparent;
+  font-size: 12px;
+  font-family: Arial;
+  outline: none;
+  padding: 2px 0;
+  margin-bottom: 4px;
+}
+
+.chk-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f2f2f2;
+}
+.chk-item:last-child { border-bottom: none; }
+.chk-cat-lbl {
+  font-size: 8.5px;
+  font-weight: bold;
+  color: #fff;
+  background: var(--blue-mid);
+  padding: 3px 5px;
+  border-radius: 3px;
+  min-width: 56px;
+  text-align: center;
+  line-height: 1.35;
+  flex-shrink: 0;
+}
+.chk-cat-spacer { min-width: 56px; flex-shrink: 0; }
+.chk-text-s { flex: 1; font-size: 11px; line-height: 1.4; color: #333; }
+.chk-toggle {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.chk-toggle button {
+  padding: 6px 11px;
+  border: none;
+  background: #f5f5f5;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: Arial;
+  color: #888;
+}
+.chk-toggle button.on-sim { background: var(--green); color: #fff; }
+.chk-toggle button.on-nao { background: var(--red);   color: #fff; }
+.chk-toggle button + button { border-left: 1px solid #ddd; }
+
+.team-counter { font-size: 11px; color: #888; margin-bottom: 8px; text-align: right; }
+.team-counter .cnt      { font-weight: bold; color: var(--blue-dark); }
+.team-counter .cnt.full { color: var(--red); }
+.emp-list { display: flex; flex-direction: column; gap: 7px; }
+.emp-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #F6F9FD;
+  border: 2px solid #DDE8F5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+}
+.emp-item.sel   { background: #E5F0FC; border-color: var(--blue-mid); }
+.emp-item.lider { background: #D8E8F8; border-color: var(--blue-dark); }
+.emp-check-box {
+  width: 22px; height: 22px;
+  border: 2px solid #bbb;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.emp-item.sel   .emp-check-box,
+.emp-item.lider .emp-check-box { background: var(--blue-mid); border-color: var(--blue-mid); color: #fff; }
+.emp-info { flex: 1; min-width: 0; }
+.emp-name { font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.emp-reg  { font-size: 10px; color: #777; }
+.lider-badge {
+  background: var(--blue-dark);
+  color: #fff;
+  font-size: 8.5px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.btn-set-lider {
+  font-size: 9px;
+  padding: 4px 9px;
+  background: #fff;
+  border: 1px solid var(--blue-mid);
+  border-radius: 4px;
+  color: var(--blue-mid);
+  cursor: pointer;
+  font-family: Arial;
+  white-space: nowrap;
+}
+
+.risk-counter { font-size: 11px; color: #888; margin-bottom: 8px; }
+.risk-counter .cnt      { font-weight: bold; color: var(--orange); }
+.risk-counter .cnt.full { color: var(--red); }
+.risk-grid { display: flex; flex-direction: column; gap: 7px; }
+.risk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #F8F8F8;
+  border: 2px solid #E8E8E8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.risk-item.sel { background: #FFF4E5; border-color: var(--orange); }
+.risk-item.dis { opacity: .4; cursor: not-allowed; }
+.risk-chk-box {
+  width: 22px; height: 22px;
+  border: 2px solid #bbb;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.risk-item.sel .risk-chk-box { background: var(--orange); border-color: var(--orange); color: #fff; }
+.risk-name-s { font-size: 11px; font-weight: bold; color: var(--blue-dark); margin-bottom: 2px; }
+.risk-meas-s { font-size: 10px; color: #666; line-height: 1.35; }
+.custom-form {
+  background: #FFFBF0;
+  border: 1px solid #FFE0A0;
+  border-radius: 7px;
+  padding: 12px;
+  margin-top: 10px;
+}
+.custom-form h4 { font-size: 11px; color: var(--blue-dark); margin-bottom: 8px; }
+.custom-form input {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 8px 9px;
+  font-size: 12px;
+  font-family: Arial;
+  outline: none;
+  margin-bottom: 6px;
+}
+.custom-form input:focus { border-color: var(--orange); }
+
+.par-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 7px;
+}
+.par-item.p0 { background: #FFF8D0; border: 1px solid #FFD700; }
+.par-item.p1 { background: #FFF0E0; border: 1px solid var(--orange); }
+.par-item.p2 { background: #FFE8E8; border: 1px solid var(--red); }
+.par-item p  { flex: 1; font-size: 11px; font-weight: bold; color: #333; }
+.par-toggle {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.par-toggle button {
+  padding: 6px 12px;
+  border: none;
+  background: #f5f5f5;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: Arial;
+  color: #888;
+}
+.par-toggle button + button { border-left: 1px solid #ddd; }
+.par-toggle button.on-sim { background: var(--green); color: #fff; }
+.par-toggle button.on-nao { background: var(--red);   color: #fff; }
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
+  border-top: 1px solid #ddd;
+  padding: 10px 14px;
+  display: flex;
+  gap: 10px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,.1);
+  z-index: 100;
+}
+.btn-primary {
+  flex: 1;
+  background: var(--blue-dark);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: Arial;
+}
+.btn-primary:active { opacity: .8; }
+.btn-secondary {
+  background: #fff;
+  color: var(--blue-dark);
+  border: 2px solid var(--blue-dark);
+  border-radius: 7px;
+  padding: 11px 14px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: Arial;
+  white-space: nowrap;
+}
+.btn-secondary:active { background: var(--blue-vlight); }
+
+.empty-state { text-align: center; padding: 28px 16px; color: #bbb; }
+.empty-icon  { font-size: 38px; margin-bottom: 8px; }
+.empty-state p { font-size: 12px; line-height: 1.5; }
+
+/* ============================================================
+   TELA 2 – DOCUMENTO
+   ============================================================ */
+#screen-preview .doc-wrap { background: #bbb; padding: 14px; }
+
+#apr-doc {
+  max-width: 794px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1.5px solid #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  color: #000;
+}
+
+.d-sub {
+  border-bottom: 1px solid #000;
+  padding: 3px 10px;
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  font-weight: bold;
+  letter-spacing: .5px;
+  min-height: 24px;
+}
+
+.d-hdr {
+  display: grid;
+  grid-template-columns: 150px 1fr 168px;
+  border-bottom: 1.5px solid #000;
+  min-height: 70px;
+}
+.d-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-right: 1px solid #000;
+}
+.d-logo img { max-width: 130px; max-height: 55px; object-fit: contain; }
+.d-title {
+  background: var(--blue-mid);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.d-title-seg {
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  padding: 9px 6px 6px;
+  width: 100%;
+  border-bottom: 1px solid rgba(255,255,255,.3);
+}
+.d-title-apr { color: #fff; font-size: 10px; text-align: center; padding: 5px 6px 8px; }
+.d-dates { border-left: 1px solid #000; display: flex; flex-direction: column; }
+.d-date-row {
+  display: flex; align-items: center; flex: 1;
+  padding: 3px 8px; border-bottom: 1px solid #ccc; gap: 5px;
+}
+.d-date-row:last-child { border-bottom: none; }
+.d-date-row .lbl { font-size: 9px; font-weight: bold; min-width: 44px; }
+.d-date-row .val { font-size: 10.5px; }
+
+.d-os-table { width: 100%; border-collapse: collapse; border-bottom: 1px solid #000; }
+.d-os-table th {
+  background: var(--blue-light);
+  font-size: 8.5px; font-weight: bold;
+  padding: 2px 4px; border: 1px solid #999; text-align: center;
+}
+.d-os-table td { font-size: 9px; padding: 1px 4px; border: 1px solid #ccc; height: 16px; }
+.d-os-num { text-align: center; font-weight: bold; background: #E8F0FA; width: 16px; border-color: #999 !important; }
+.d-os-sep { border-left: 1.5px solid #000 !important; }
+
+.d-sec-hdr {
+  background: var(--blue-dark);
+  color: #fff; font-size: 9.5px; font-weight: bold;
+  padding: 3px 8px; border-bottom: 1px solid #000;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.d-sn { display: flex; gap: 10px; font-size: 9.5px; min-width: 56px; justify-content: flex-end; }
+
+.d-chk-table { width: 100%; border-collapse: collapse; border-bottom: 1.5px solid #000; }
+.d-chk-table td { border: 1px solid #ccc; padding: 2px 3px; vertical-align: middle; }
+
+.d-chk-row { height: 32px; }
+
+.d-cat-cell {
+  background: var(--blue-mid);
+  color: #fff;
+  font-weight: bold;
+  font-size: 8px;
+  text-align: center;
+  width: 20px;
+  border-color: #1A5A9A !important;
+  padding: 0;
+  vertical-align: middle;
+}
+
+.d-cat-inner {
+  writing-mode: horizontal-lr;
+  white-space: normal;
+  display: block;
+  font-size: 7px;        /* ← reduz para caber no rowspan */
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-align: center;
+  text-transform: uppercase;
+letter-spacing: 1.5px;   /* ← aumente até ficar bom */
+margin: auto;          /* ← centraliza o elemento */
+  display: block;
+  text-align: center;
+}
+
+.d-chk-text { font-size: 9px; padding: 2px 6px; line-height: 1.35; }
+.d-sim-cell, .d-nao-cell { text-align: center; width: 30px; font-size: 13px; border-color: #999 !important; }
+.d-chk-row:nth-child(even) td:not(.d-cat-cell) { background: var(--blue-vlight); }
+
+.d-risk-table { width: 100%; border-collapse: collapse; border-bottom: 1.5px solid #000; }
+.d-risk-table th {
+  background: var(--blue-dark); color: #fff;
+  font-size: 9.5px; font-weight: bold;
+  padding: 3px 8px; border: 1.5px solid #000; text-align: center; width: 50%;
+}
+.d-risk-table td {
+  border: 1px solid #ccc; padding: 3px 7px;
+  font-size: 9px; height: 22px; vertical-align: middle; width: 50%;
+}
+.d-risk-table td:first-child { border-right: 1.5px solid #000; }
+.d-risk-table tr:nth-child(even) td { background: var(--blue-vlight); }
+
+.d-parecer { border-bottom: 1.5px solid #000; }
+.d-par-row { display: flex; align-items: center; border-bottom: 1px solid rgba(0,0,0,.1); min-height: 24px; }
+.d-par-row.p0 { background: var(--yellow); }
+.d-par-row.p1 { background: var(--orange); }
+.d-par-row.p2 { background: var(--red); color: #fff; }
+.d-par-txt  { flex: 1; font-size: 9px; font-weight: bold; padding: 3px 8px; }
+.d-par-sn   { display: flex; gap: 14px; padding: 3px 8px; border-left: 1px solid rgba(0,0,0,.15); min-width: 75px; justify-content: center; font-size: 13px; }
+.d-just     { padding: 3px 8px 5px; font-size: 8.5px; background: #fafafa; border-bottom: 1px solid #ddd; }
+.d-just-val { font-size: 9px; min-height: 18px; padding-top: 2px; color: #333; }
+
+.d-sig-hdr {
+  background: var(--blue-mid); color: #fff;
+  font-size: 9.5px; font-weight: bold;
+  text-align: center; padding: 3px 8px; border-bottom: 1px solid #000;
+}
+.d-sig-table { width: 100%; border-collapse: collapse; }
+.d-sig-table th {
+  background: var(--blue-light); font-size: 8.5px; font-weight: bold;
+  padding: 2px 4px; border: 1px solid #999; text-align: center;
+}
+.d-sig-table td { border: 1px solid #ccc; padding: 2px 4px; height: 36px; vertical-align: middle; }
+.d-func-cell {
+  font-size: 7.5px; font-weight: bold; text-align: center;
+  width: 82px; background: #EEF3FA; line-height: 1.3; padding: 3px;
+}
+.d-obs-row td { background: #EFEFEF; }
+.sig-canvas {
+  display: block; cursor: crosshair; touch-action: none;
+  background: #FAFAFA; border: 1px solid #E0E0E0; border-radius: 2px;
+}
+.sig-clear { font-size: 7.5px; color: #aaa; cursor: pointer; text-align: center; text-decoration: underline; display: block; }
+.d-footnote { font-size: 7px; padding: 3px 7px; border-top: 1px solid #ddd; color: #555; line-height: 1.4; }
+
+.preview-bar {
+  max-width: 794px; margin: 12px auto 0;
+  display: flex; gap: 10px; flex-wrap: wrap;
+  justify-content: center; padding-bottom: 20px;
+}
+.btn-pv { padding: 11px 22px; border: none; border-radius: 7px; font-size: 13px; font-weight: bold; cursor: pointer; font-family: Arial; }
+.btn-pv-back { background: #5a6268; color: #fff; }
+.btn-pv-pdf  { background: var(--blue-dark); color: #fff; }
+.btn-pv-rst  { background: var(--red); color: #fff; }
+
+/* ============================================================
+   TELAS 3 & 4 – BANCO DE DADOS
+   ============================================================ */
+.db-form-card {
+  background: #fff;
+  border-radius: 9px;
+  padding: 16px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.12);
+  margin-bottom: 14px;
+}
+.db-form-card h3 {
+  font-size: 13px;
+  color: var(--blue-dark);
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--blue-light);
+  padding-bottom: 8px;
+}
+.form-field { margin-bottom: 10px; }
+.form-field label { display: block; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px; }
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 9px 10px;
+  font-size: 13px;
+  font-family: Arial;
+  outline: none;
+}
+.form-field input:focus,
+.form-field textarea:focus { border-color: var(--blue-mid); }
+.form-field textarea { resize: none; }
+
+/* ── NOVO: PAD DE ASSINATURA NO CADASTRO ── */
+.emp-sig-wrap {
+  border: 1.5px dashed #a0b8d0;
+  border-radius: 6px;
+  background: #FAFCFF;
+  overflow: hidden;
+  position: relative;
+}
+.emp-sig-wrap::before {
+  content: 'Assine aqui';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  color: #ccc;
+  pointer-events: none;
+  user-select: none;
+}
+.emp-sig-canvas {
+  display: block;
+  width: 100%;
+  height: 90px;
+  cursor: crosshair;
+  touch-action: none;
+  position: relative;
+  z-index: 1;
+}
+/* Indicador de assinatura salva na lista */
+.sig-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #E8F8EE;
+  color: var(--green);
+  border: 1px solid #b2e4c0;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.no-sig-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #FFF3E0;
+  color: var(--orange);
+  border: 1px solid #ffcc80;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.emp-db-item {
+  background: #fff; border-radius: 7px;
+  padding: 12px 14px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+.emp-db-info { flex: 1; min-width: 0; }
+.emp-db-name { font-size: 13px; font-weight: bold; }
+.emp-db-reg  { font-size: 11px; color: #777; }
+.emp-db-func { font-size: 10px; color: var(--blue-mid); }
+.emp-db-acts { display: flex; gap: 6px; }
+
+.risk-db-item {
+  background: #fff; border-radius: 7px;
+  padding: 12px 14px; margin-bottom: 8px;
+  display: flex; align-items: flex-start; gap: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+.risk-db-info { flex: 1; min-width: 0; }
+.risk-db-name { font-size: 12px; font-weight: bold; color: var(--blue-dark); margin-bottom: 3px; }
+.risk-db-meas { font-size: 10px; color: #666; line-height: 1.4; }
+.risk-db-acts { display: flex; gap: 6px; flex-shrink: 0; }
+
+.btn-edit, .btn-del {
+  border: none; border-radius: 5px;
+  padding: 7px 11px; font-size: 13px;
+  cursor: pointer; font-family: Arial;
+}
+.btn-edit { background: var(--blue-vlight); color: var(--blue-dark); }
+.btn-del  { background: #FFE8E8; color: var(--red); }
+
+.loading-ov {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.75); z-index: 9999;
+  flex-direction: column; gap: 14px;
+  align-items: center; justify-content: center;
+}
+.loading-ov.on { display: flex; }
+.spinner {
+  width: 50px; height: 50px;
+  border: 5px solid rgba(255,255,255,.2);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-txt { color: #fff; font-size: 14px; font-weight: bold; }
+
+@media (max-width: 480px) {
+  .d-hdr { grid-template-columns: 115px 1fr 130px; }
+  .d-title-seg { font-size: 12px; }
+  .os-grid { grid-template-columns: 1fr; }
+  .nav-btn { padding: 6px 8px; font-size: 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="loading-ov" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-txt">Gerando PDF...</div>
+</div>
+
+<!-- TELA 1 – SETUP -->
+<div id="screen-setup" class="screen active">
+  <div class="nav-bar">
+    <div class="nav-title">📋 Nova APR</div>
+    <div class="nav-actions">
+      <button class="nav-btn" onclick="goTo('screen-risks')">⚠️ Riscos</button>
+      <button class="nav-btn" onclick="goTo('screen-employees')">👷 Equipe</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="card-header">🏭 Identificação</div>
+      <div class="card-body">
+        <div class="field-row">
+          <span class="field-label">Subestação</span>
+          <input class="f-input" type="text" id="s-sub" placeholder="Nome da SE" autocapitalize="characters" autocomplete="off">
+        </div>
+        <div class="field-row">
+          <span class="field-label">Data</span>
+          <input class="f-input" type="text" id="s-data" readonly="" style="max-width:115px;">
+          <span class="field-label" style="min-width:50px;">Início</span>
+          <input class="f-input" type="text" id="s-inicio" readonly="" style="max-width:85px;">
+        </div>
+        <div class="field-row">
+          <span class="field-label">Término</span>
+          <input class="f-input" type="text" id="s-termino" placeholder="__:__" maxlength="5" style="max-width:85px;" oninput="fmtHora(this)">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">📄 Ordens de Serviço</div>
+      <div class="card-body">
+        <div class="os-grid" id="os-grid"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">✅ Análise dos Componentes de Variação</div>
+      <div class="card-body" id="setup-checklist"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        👷 Equipe Executora
+        <span class="badge" id="team-badge">0/7</span>
+      </div>
+      <div class="card-body">
+        <div class="team-counter">
+          <span class="cnt" id="team-cnt">0</span>/7 selecionados &nbsp;·&nbsp;
+          Toque para selecionar; "Definir Líder" para o responsável
+        </div>
+        <div class="emp-list" id="team-list"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        ⚠️ Perigos / Fatores de Risco
+        <span class="badge" id="risk-badge">0/6</span>
+      </div>
+      <div class="card-body">
+        <div class="risk-counter">
+          <span class="cnt" id="risk-cnt">0</span>/6 selecionados
+          <span style="float:right;font-size:10px;color:var(--blue-mid);
+                       cursor:pointer;text-decoration:underline;" onclick="goTo('screen-risks')">Gerenciar banco →</span>
+        </div>
+        <div class="risk-grid" id="setup-risks"></div>
+        <div class="custom-form">
+          <h4>➕ Risco Avulso (somente esta APR)</h4>
+          <input type="text" id="c-risco" placeholder="Descrição do risco" autocomplete="off">
+          <input type="text" id="c-medida" placeholder="Medida de controle" autocomplete="off">
+          <button class="btn-secondary" onclick="addCustomRisk()" style="width:100%;padding:9px;border-radius:5px;">Adicionar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">📊 Parecer da Equipe Executora</div>
+      <div class="card-body" id="setup-parecer"></div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="btn-secondary" onclick="resetForm()">↺ Limpar</button>
+    <button class="btn-primary" onclick="goToPreview()">Visualizar Documento →</button>
+  </div>
+</div>
+
+<!-- TELA 2 – DOCUMENTO -->
+<div id="screen-preview" class="screen">
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="goTo('screen-setup')">← Editar</button>
+    <div class="nav-title">Visualização APR</div>
+    <button class="nav-btn" onclick="gerarPDF()">📄 PDF</button>
+  </div>
+  <div class="doc-wrap">
+    <div id="apr-doc">
+      <div class="d-sub" id="d-sub"></div>
+      <div class="d-hdr">
+        <div class="d-logo">
+          <img id="d-logo" src="data:image/png;base64,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" alt="Concert Engenharia">
+        </div>
+        <div class="d-title">
+          <div class="d-title-seg">Segurança do Trabalho</div>
+          <div class="d-title-apr">APR – Análise Preliminar de Riscos</div>
+        </div>
+        <div class="d-dates">
+          <div class="d-date-row"><span class="lbl">Data</span><span class="val" id="d-data"></span></div>
+          <div class="d-date-row"><span class="lbl">Início</span><span class="val" id="d-inicio"></span></div>
+          <div class="d-date-row"><span class="lbl">Término</span><span class="val" id="d-termino"></span></div>
+        </div>
+      </div>
+      <table class="d-os-table" id="d-os-table"></table>
+      <div class="d-sec-hdr">
+        <span>ANÁLISE DOS COMPONENTES DE VARIAÇÃO</span>
+        <div class="d-sn"><span>SIM</span><span>NÃO</span></div>
+      </div>
+      <table class="d-chk-table" id="d-chk-table"></table>
+      <table class="d-risk-table">
+        <thead>
+          <tr>
+            <th>PERIGOS/FATORES DE RISCO</th>
+            <th>MEDIDAS DE CONTROLE BÁSICAS ADOTADAS</th>
+          </tr>
+        </thead>
+        <tbody id="d-risk-tbody"></tbody>
+      </table>
+      <div class="d-parecer" id="d-parecer"></div>
+      <div class="d-sig-hdr">CIÊNCIA DO CONTEÚDO DESTE DOCUMENTO PELA EQUIPE EXECUTORA</div>
+      <table class="d-sig-table">
+        <thead>
+          <tr>
+            <th class="d-func-cell">FUNÇÃO</th>
+            <th>NOME</th>
+            <th style="width:100px;">DOCUMENTO-REGISTRO</th>
+            <th style="width:108px;">ASSINATURA</th>
+          </tr>
+        </thead>
+        <tbody id="d-sig-tbody"></tbody>
+      </table>
+      <div class="d-footnote">
+        ¹ Observador designado, ficará responsável por monitorar a execução da tarefa
+        na ausência do Responsável ou caso este esteja executando a tarefa.
+      </div>
+    </div>
+    <div class="preview-bar">
+      <button class="btn-pv btn-pv-back" onclick="goTo('screen-setup')">← Voltar e Editar</button>
+      <button class="btn-pv btn-pv-pdf" onclick="gerarPDF()">📄 Exportar PDF</button>
+      <button class="btn-pv btn-pv-rst" onclick="resetForm()">↺ Nova APR</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA 3 – BANCO DE FUNCIONÁRIOS -->
+<div id="screen-employees" class="screen">
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="goTo('screen-setup')">← Voltar</button>
+    <div class="nav-title">👷 Banco de Funcionários</div>
+    <div></div>
+  </div>
+  <div class="content">
+    <div class="db-form-card">
+      <h3 id="emp-form-title">➕ Cadastrar Funcionário</h3>
+      <input type="hidden" id="emp-edit-id">
+      <div class="form-field">
+        <label>Nome Completo *</label>
+        <input type="text" id="emp-nome" placeholder="Nome completo" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label>Documento / Registro *</label>
+        <input type="text" id="emp-reg" placeholder="Número do registro" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label>Função (opcional)</label>
+        <input type="text" id="emp-func" placeholder="Ex: Técnico de Campo" autocomplete="off">
+      </div>
+
+      <!-- ── NOVO: CAMPO DE ASSINATURA ── -->
+      <div class="form-field">
+        <label>✍️ Assinatura</label>
+        <small style="display:block;font-size:10px;color:#888;margin-bottom:6px;">
+          Capture uma vez — será aplicada automaticamente em todas as APRs.
+        </small>
+        <div class="emp-sig-wrap">
+          <canvas id="emp-sig-canvas" width="600" height="90" class="emp-sig-canvas"></canvas>
+        </div>
+        <button class="btn-secondary" onclick="clearEmpSig()" style="width:100%;margin-top:7px;padding:8px;font-size:11px;border-radius:5px;">
+          🗑️ Limpar Assinatura
+        </button>
+      </div>
+      <!-- ── FIM CAMPO ASSINATURA ── -->
+
+      <div style="display:flex;gap:8px;">
+        <button class="btn-primary" onclick="saveEmployee()" style="padding:11px;">Salvar</button>
+        <button class="btn-secondary" onclick="clearEmpForm()">Limpar</button>
+      </div>
+    </div>
+    <div id="emp-list-container"></div>
+  </div>
+</div>
+
+<!-- TELA 4 – BANCO DE RISCOS -->
+<div id="screen-risks" class="screen">
+  <div class="nav-bar">
+    <button class="nav-btn" onclick="goTo('screen-setup')">← Voltar</button>
+    <div class="nav-title">⚠️ Banco de Riscos</div>
+    <div></div>
+  </div>
+  <div class="content">
+    <div class="db-form-card">
+      <h3 id="risk-form-title">➕ Cadastrar Risco</h3>
+      <input type="hidden" id="risk-edit-id">
+      <div class="form-field">
+        <label>Perigo / Fator de Risco *</label>
+        <input type="text" id="risk-nome" placeholder="Descreva o perigo ou fator de risco" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label>Medida de Controle *</label>
+        <textarea id="risk-med" rows="3" placeholder="Descreva as medidas de controle básicas adotadas"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-primary" onclick="saveRisk()" style="padding:11px;">Salvar</button>
+        <button class="btn-secondary" onclick="clearRiskForm()">Limpar</button>
+      </div>
+    </div>
+    <div id="risk-list-container"></div>
+  </div>
+</div>
+
+<script>
+const MAX_TEAM  = 7;
+const MAX_RISKS = 6;
+
+const CHECKLIST_DATA = [
+  { cat:'INDIVÍDUO', items:[
+    'A equipe está completa, dimensionada ao mínimo exigido no Padrão desta Tarefa?',
+    'A equipe conhece os procedimentos operacionais e de segurança para a realização desta Tarefa?',
+    'A equipe está capacitada a realizar os procedimentos para execução desta tarefa?'
+  ]},
+  { cat:'MATERIAL', items:[
+    'Possuem todas as ferramentas e materiais necessários para execução desta Tarefa?',
+    'Possuem todos os Equipamentos de Proteção Coletiva e Individual necessários para a execução desta Tarefa?',
+    'Todos as ferramentas, EPI, EPC, demais equipamentos e materiais necessários estão em condições de uso?'
+  ]},
+  { cat:'MEIO AMBIENTE', items:[
+    'A equipe está no local exato da execução da Tarefa?',
+    'Foram verificados as condições físicas do local, ponto de trabalho, estruturas adjacentes, condutores e estaiamentos?',
+    'Foram avaliadas as demais fontes de energizamento, tais como: geradores, UC.'
+  ]},
+  { cat:'TAREFA', items:[
+    'Os riscos inerentes a Tarefa foram verificados? Foram considerados os fatores de riscos adicionais?',
+    'A equipe possui no local o conteúdo dos Padrões do GSST atualizados para consulta?',
+    'Foram verificadas as informações constantes no Padrão da respectiva Tarefa?'
+  ]}
+];
+
+const RISKS_SEED = [
+  {id:1,  n:'Choque Elétrico (Retorno de tensão, indução ou contato acidental)',
+          m:'Delimitação de áreas seguras; EPIs (luvas isolantes, vestimenta AR); aterramento temporário se necessário.'},
+  {id:2,  n:'Arco Elétrico (Manobra de chaves ou falha em equipamentos)',
+          m:'Vestimenta de proteção térmica (classe adequada); manter distância de segurança (ZS).'},
+  {id:3,  n:'Queda de Nível (Trabalho em canaletas, escadas ou plataformas)',
+          m:'Inspeção prévia de pisos e tampas de canaletas; cinto de segurança em alturas > 2 m.'},
+  {id:4,  n:'Queda de Mesmo Nível',
+          m:'Organização da área de trabalho; sinalização de obstáculos; isolamento com fita zebrada.'},
+  {id:5,  n:'Atropelamento (Circulação de veículos pesados no pátio)',
+          m:'Colete refletivo; circulação apenas em caminhos sinalizados; atenção em manobras.'},
+  {id:6,  n:'Ataque de Animais Peçonhentos (Escorpiões / cobras)',
+          m:'Perneiras e luvas de vaqueta; inspeção visual antes de acessar locais confinados ou escuros.'},
+  {id:7,  n:'Intempéries (Descargas atmosféricas ou calor excessivo)',
+          m:'Interrupção de atividades externas em caso de raios; hidratação e uso de protetor solar.'},
+  {id:8,  n:'Energização Acidental (Alimentação de painéis adjacentes)',
+          m:'Etiquetagem e bloqueio (LOTO); sinalização clara do painel sob teste.'},
+  {id:9,  n:'Curto-circuito (Erro na fiação ou inserção de ferramentas)',
+          m:'Ferramentas isoladas (1000 V); conferência de esquemas elétricos antes da energização.'},
+  {id:10, n:'Ergonomia — postura inadequada em testes prolongados',
+          m:'Alternância de postura; pausas para alongamento; bancadas com altura adequada.'},
+  {id:11, n:'Danos a Equipamentos Sensíveis (Injeção de corrente / tensão indevida)',
+          m:'Verificação dos limites de entrada de IEDs; uso de malas de teste calibradas.'},
+  {id:12, n:'Ergonomia (Entorce, lombalgia, distensão, etc.)',
+          m:'Utilização de conceitos de ergonomia e análise do ambiente.'}
+];
+
+const PARECER_DATA = [
+  { cls:'p0', txt:'OS RISCOS FORAM CONTROLADOS?' },
+  { cls:'p1', txt:'A TAREFA PODE SER EXECUTADA COM SEGURANÇA PELOS ENVOLVIDOS?' },
+  { cls:'p2', txt:'QUER EXERCER O DIREITO DE RECUSA? POR QUÊ?' }
+];
+
+const state = {
+  checklist:    Array(12).fill(true),
+  selRiskIds:   new Set(),
+  customRisks:  [],
+  selTeamIds:   [],
+  liderIndex:   0,
+  parecer:      [null, null, null],
+  justificativa:''
+};
+
+// ── BANCO DE FUNCIONÁRIOS ──────────────────────────────────────
+function loadEmps()      { return JSON.parse(localStorage.getItem('apr_emps') || '[]'); }
+function storeEmps(list) { localStorage.setItem('apr_emps', JSON.stringify(list)); }
+
+// ── NOVO: FUNÇÕES DE ASSINATURA DO FUNCIONÁRIO ────────────────
+
+function initEmpSigCanvas() {
+  const cv = document.getElementById('emp-sig-canvas');
+  if (!cv || cv._sigInit) return;   // evita re-registro de eventos
+  cv._sigInit = true;
+  const ctx = cv.getContext('2d');
+  let dn = false, lx = 0, ly = 0;
+  const pt = e => {
+    const r = cv.getBoundingClientRect();
+    const s = e.touches ? e.touches[0] : e;
+    return {
+      x: (s.clientX - r.left) * (cv.width  / r.width),
+      y: (s.clientY - r.top)  * (cv.height / r.height)
+    };
+  };
+  const start = e => { e.preventDefault(); dn = true; const p = pt(e); lx = p.x; ly = p.y; };
+  const move  = e => {
+    e.preventDefault();
+    if (!dn) return;
+    const p = pt(e);
+    ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(p.x, p.y);
+    ctx.strokeStyle = '#1a1a2e'; ctx.lineWidth = 1.8; ctx.lineCap = 'round'; ctx.stroke();
+    lx = p.x; ly = p.y;
+  };
+  const end = () => { dn = false; };
+  cv.addEventListener('mousedown',  start);
+  cv.addEventListener('mousemove',  move);
+  cv.addEventListener('mouseup',    end);
+  cv.addEventListener('mouseleave', end);
+  cv.addEventListener('touchstart', start, { passive: false });
+  cv.addEventListener('touchmove',  move,  { passive: false });
+  cv.addEventListener('touchend',   end);
+}
+
+function clearEmpSig() {
+  const cv = document.getElementById('emp-sig-canvas');
+  if (cv) cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+}
+
+function getEmpSig() {
+  const cv = document.getElementById('emp-sig-canvas');
+  if (!cv) return '';
+  const data = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data;
+  return data.some(v => v !== 0) ? cv.toDataURL('image/png') : '';
+}
+
+function loadEmpSigToCanvas(sig) {
+  const cv = document.getElementById('emp-sig-canvas');
+  if (!cv || !sig) return;
+  const img = new Image();
+  img.onload = () => {
+    cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  };
+  img.src = sig;
+}
+
+// Carrega assinatura salva em qualquer canvas pelo ID
+function loadSigToCanvas(canvasId, sigData) {
+  const cv = document.getElementById(canvasId);
+  if (!cv || !sigData) return;
+  const img = new Image();
+  img.onload = () => {
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  };
+  img.src = sigData;
+}
+// ── FIM FUNÇÕES ASSINATURA ────────────────────────────────────
+
+function saveEmployee() {
+  const id   = document.getElementById('emp-edit-id').value;
+  const nome = document.getElementById('emp-nome').value.trim();
+  const reg  = document.getElementById('emp-reg').value.trim();
+  const func = document.getElementById('emp-func').value.trim();
+  const sig  = getEmpSig(); // ← NOVO: captura assinatura do canvas
+  if (!nome) { alert('Informe o nome.'); return; }
+  if (!reg)  { alert('Informe o documento/registro.'); return; }
+  const list = loadEmps();
+  if (id) {
+    const i = list.findIndex(e => e.id === id);
+    // Se o canvas estiver vazio ao editar, preserva a assinatura anterior
+    if (i !== -1) list[i] = { id, nome, reg, func, sig: sig || list[i].sig || '' };
+  } else {
+    list.push({ id: Date.now().toString(), nome, reg, func, sig });
+  }
+  storeEmps(list);
+  clearEmpForm();
+  renderEmpDB();
+  renderTeamList();
+}
+
+function editEmployee(id) {
+  const emp = loadEmps().find(e => e.id === id);
+  if (!emp) return;
+  document.getElementById('emp-edit-id').value  = emp.id;
+  document.getElementById('emp-nome').value     = emp.nome;
+  document.getElementById('emp-reg').value      = emp.reg;
+  document.getElementById('emp-func').value     = emp.func || '';
+  document.getElementById('emp-form-title').textContent = '✏️ Editar Funcionário';
+  // ← NOVO: carrega assinatura existente no canvas
+  clearEmpSig();
+  if (emp.sig) setTimeout(() => loadEmpSigToCanvas(emp.sig), 80);
+  window.scrollTo(0, 0);
+}
+
+function deleteEmployee(id) {
+  if (!confirm('Remover este funcionário do banco?')) return;
+  storeEmps(loadEmps().filter(e => e.id !== id));
+  state.selTeamIds = state.selTeamIds.filter(s => s !== id);
+  if (state.liderIndex >= state.selTeamIds.length)
+    state.liderIndex = Math.max(0, state.selTeamIds.length - 1);
+  renderEmpDB();
+  renderTeamList();
+}
+
+function clearEmpForm() {
+  ['emp-edit-id','emp-nome','emp-reg','emp-func'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('emp-form-title').textContent = '➕ Cadastrar Funcionário';
+  clearEmpSig(); // ← NOVO: limpa canvas ao resetar formulário
+}
+
+function renderEmpDB() {
+  const c    = document.getElementById('emp-list-container');
+  const list = loadEmps();
+  if (!list.length) {
+    c.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">👷</div>
+        <p>Nenhum funcionário cadastrado ainda.<br>Use o formulário acima para começar.</p>
+      </div>`;
+    return;
+  }
+  // ← NOVO: badge indicando se a assinatura está salva
+  c.innerHTML = list.map(e => `
+    <div class="emp-db-item">
+      <div class="emp-db-info">
+        <div class="emp-db-name">
+          ${esc(e.nome)}
+          ${e.sig
+            ? '<span class="sig-badge">✍️ Assinatura salva</span>'
+            : '<span class="no-sig-badge">⚠️ Sem assinatura</span>'}
+        </div>
+        <div class="emp-db-reg">Reg: ${esc(e.reg)}</div>
+        ${e.func ? `<div class="emp-db-func">${esc(e.func)}</div>` : ''}
+      </div>
+      <div class="emp-db-acts">
+        <button class="btn-edit" onclick="editEmployee('${e.id}')">✏️</button>
+        <button class="btn-del"  onclick="deleteEmployee('${e.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── BANCO DE RISCOS ───────────────────────────────────────────
+function loadRisks() {
+  const stored = localStorage.getItem('apr_risks');
+  if (stored !== null) return JSON.parse(stored);
+  storeRisks(RISKS_SEED);
+  return JSON.parse(JSON.stringify(RISKS_SEED));
+}
+function storeRisks(list) { localStorage.setItem('apr_risks', JSON.stringify(list)); }
+
+function saveRisk() {
+  const id   = document.getElementById('risk-edit-id').value;
+  const nome = document.getElementById('risk-nome').value.trim();
+  const med  = document.getElementById('risk-med').value.trim();
+  if (!nome) { alert('Informe o perigo/risco.'); return; }
+  if (!med)  { alert('Informe a medida de controle.'); return; }
+  const list = loadRisks();
+  if (id) {
+    const i = list.findIndex(r => String(r.id) === id);
+    if (i !== -1) list[i] = { id: list[i].id, n: nome, m: med };
+  } else {
+    list.push({ id: Date.now(), n: nome, m: med });
+  }
+  storeRisks(list);
+  clearRiskForm();
+  renderRiskDB();
+  renderRiskList();
+}
+
+function editRisk(id) {
+  const risk = loadRisks().find(r => String(r.id) === String(id));
+  if (!risk) return;
+  document.getElementById('risk-edit-id').value = String(risk.id);
+  document.getElementById('risk-nome').value    = risk.n;
+  document.getElementById('risk-med').value     = risk.m;
+  document.getElementById('risk-form-title').textContent = '✏️ Editar Risco';
+  window.scrollTo(0, 0);
+}
+
+function deleteRisk(id) {
+  if (!confirm('Remover este risco do banco?')) return;
+  storeRisks(loadRisks().filter(r => String(r.id) !== String(id)));
+  state.selRiskIds.delete(Number(id));
+  state.selRiskIds.delete(id);
+  renderRiskDB();
+  renderRiskList();
+}
+
+function clearRiskForm() {
+  ['risk-edit-id','risk-nome','risk-med'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('risk-form-title').textContent = '➕ Cadastrar Risco';
+}
+
+function renderRiskDB() {
+  const c    = document.getElementById('risk-list-container');
+  const list = loadRisks();
+  if (!list.length) {
+    c.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <p>Nenhum risco cadastrado no banco.<br>Use o formulário acima para começar.</p>
+      </div>`;
+    return;
+  }
+  c.innerHTML = list.map(r => `
+    <div class="risk-db-item">
+      <div class="risk-db-info">
+        <div class="risk-db-name">${esc(r.n)}</div>
+        <div class="risk-db-meas">${esc(r.m)}</div>
+      </div>
+      <div class="risk-db-acts">
+        <button class="btn-edit" onclick="editRisk('${r.id}')">✏️</button>
+        <button class="btn-del"  onclick="deleteRisk('${r.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── SETUP ─────────────────────────────────────────────────────
+function buildSetupOS() {
+  const g = document.getElementById('os-grid');
+  g.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const d = document.createElement('div');
+    d.className = 'os-item';
+    d.innerHTML = `
+      <span class="os-label">OS Nº ${i+1}</span>
+      <input type="text" id="os-num${i}" placeholder="Nº Ordem de Serviço" autocomplete="off">
+      <input type="text" id="os-pad${i}" placeholder="Nº Padrão / Revisão"  autocomplete="off">`;
+    g.appendChild(d);
+  }
+}
+
+function buildSetupChecklist() {
+  const c = document.getElementById('setup-checklist');
+  c.innerHTML = '';
+  let idx = 0;
+  CHECKLIST_DATA.forEach(cat => {
+    cat.items.forEach((txt, i) => {
+      const li = idx;
+      const d  = document.createElement('div');
+      d.className = 'chk-item';
+      const catEl = i === 0
+        ? `<div class="chk-cat-lbl">${cat.cat.replace('\n','<br>')}</div>`
+        : `<div class="chk-cat-spacer"></div>`;
+      d.innerHTML = `
+        ${catEl}
+        <div class="chk-text-s">${txt}</div>
+        <div class="chk-toggle">
+          <button id="cs${li}" class="on-sim" onclick="setChk(${li},'sim')">SIM</button>
+          <button id="cn${li}"               onclick="setChk(${li},'nao')">NÃO</button>
+        </div>`;
+      c.appendChild(d);
+      idx++;
+    });
+  });
+}
+
+function setChk(idx, val) {
+  state.checklist[idx] = val === 'sim';
+  document.getElementById(`cs${idx}`).className = val === 'sim' ? 'on-sim' : '';
+  document.getElementById(`cn${idx}`).className = val === 'nao' ? 'on-nao' : '';
+}
+
+function renderTeamList() {
+  const c    = document.getElementById('team-list');
+  const emps = loadEmps();
+  const cnt  = state.selTeamIds.length;
+  const lId  = state.selTeamIds[state.liderIndex] || null;
+
+  document.getElementById('team-cnt').textContent   = cnt;
+  document.getElementById('team-cnt').className     = cnt >= MAX_TEAM ? 'cnt full' : 'cnt';
+  document.getElementById('team-badge').textContent = `${cnt}/${MAX_TEAM}`;
+
+  if (!emps.length) {
+    c.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">👷</div>
+        <p>Nenhum funcionário cadastrado.<br>
+        <span style="color:var(--blue-mid);cursor:pointer;text-decoration:underline;"
+              onclick="goTo('screen-employees')">Cadastrar agora →</span></p>
+      </div>`;
+    return;
+  }
+
+  c.innerHTML = emps.map(e => {
+    const isSel   = state.selTeamIds.includes(e.id);
+    const isLider = isSel && e.id === lId;
+    const cls     = isLider ? 'sel lider' : (isSel ? 'sel' : '');
+    const liderBtn = isSel && !isLider
+      ? `<button class="btn-set-lider"
+                 onclick="event.stopPropagation();setLider('${e.id}')">
+           Definir Líder
+         </button>`
+      : '';
+    return `
+      <div class="emp-item ${cls}" onclick="toggleTeam('${e.id}')">
+        <div class="emp-check-box">${isSel ? '✓' : ''}</div>
+        <div class="emp-info">
+          <div class="emp-name">${esc(e.nome)}</div>
+          <div class="emp-reg">${esc(e.reg)}${e.func ? ' · '+esc(e.func) : ''}</div>
+        </div>
+        ${isLider ? '<span class="lider-badge">LÍDER</span>' : ''}
+        ${liderBtn}
+      </div>`;
+  }).join('');
+}
+
+function toggleTeam(id) {
+  if (state.selTeamIds.includes(id)) {
+    state.selTeamIds = state.selTeamIds.filter(s => s !== id);
+    if (state.liderIndex >= state.selTeamIds.length)
+      state.liderIndex = Math.max(0, state.selTeamIds.length - 1);
+  } else {
+    if (state.selTeamIds.length >= MAX_TEAM) {
+      alert(`Máximo de ${MAX_TEAM} membros atingido.`); return;
+    }
+    state.selTeamIds.push(id);
+    if (state.selTeamIds.length === 1) state.liderIndex = 0;
+  }
+  renderTeamList();
+}
+
+function setLider(id) {
+  const i = state.selTeamIds.indexOf(id);
+  if (i !== -1) state.liderIndex = i;
+  renderTeamList();
+}
+
+function renderRiskList() {
+  const c     = document.getElementById('setup-risks');
+  const risks = loadRisks();
+  const total = state.selRiskIds.size + state.customRisks.length;
+
+  document.getElementById('risk-cnt').textContent   = total;
+  document.getElementById('risk-cnt').className     = total >= MAX_RISKS ? 'cnt full' : 'cnt';
+  document.getElementById('risk-badge').textContent = `${total}/${MAX_RISKS}`;
+
+  c.innerHTML = risks.map(r => {
+    const sel = state.selRiskIds.has(r.id);
+    const dis = !sel && total >= MAX_RISKS;
+    return `
+      <div class="risk-item ${sel?'sel':''} ${dis?'dis':''}"
+           onclick="${dis ? '' : `toggleRisk(${r.id})`}">
+        <div class="risk-chk-box">${sel ? '✓' : ''}</div>
+        <div>
+          <div class="risk-name-s">${esc(r.n)}</div>
+          <div class="risk-meas-s">${esc(r.m)}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  state.customRisks.forEach((cr, i) => {
+    const d = document.createElement('div');
+    d.className = 'risk-item sel';
+    d.style.cssText = 'background:#FFF4E0;border-color:var(--orange);';
+    d.innerHTML = `
+      <div class="risk-chk-box"
+           style="background:var(--orange);border-color:var(--orange);color:#fff;">✓</div>
+      <div style="flex:1;">
+        <div class="risk-name-s">✏️ ${esc(cr.n)}</div>
+        <div class="risk-meas-s">${esc(cr.m)}</div>
+      </div>
+      <button onclick="removeCustom(${i})"
+              style="background:none;border:none;color:var(--red);
+                     font-size:20px;cursor:pointer;padding:0 4px;line-height:1;">✕</button>`;
+    c.appendChild(d);
+  });
+}
+
+function toggleRisk(id) {
+  state.selRiskIds.has(id) ? state.selRiskIds.delete(id) : state.selRiskIds.add(id);
+  renderRiskList();
+}
+
+function addCustomRisk() {
+  const n = document.getElementById('c-risco').value.trim();
+  const m = document.getElementById('c-medida').value.trim();
+  if (!n) { alert('Informe a descrição do risco.'); return; }
+  if (!m) { alert('Informe a medida de controle.'); return; }
+  if (state.selRiskIds.size + state.customRisks.length >= MAX_RISKS) {
+    alert(`Limite de ${MAX_RISKS} riscos atingido.`); return;
+  }
+  state.customRisks.push({ n, m });
+  document.getElementById('c-risco').value  = '';
+  document.getElementById('c-medida').value = '';
+  renderRiskList();
+}
+
+function removeCustom(i) {
+  state.customRisks.splice(i, 1);
+  renderRiskList();
+}
+
+function buildSetupParecer() {
+  const c = document.getElementById('setup-parecer');
+  c.innerHTML = '';
+  PARECER_DATA.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = `par-item ${p.cls}`;
+    d.innerHTML = `
+      <p>${p.txt}</p>
+      <div class="par-toggle">
+        <button id="ps${i}" onclick="setParecer(${i},'sim')">SIM</button>
+        <button id="pn${i}" onclick="setParecer(${i},'nao')">NÃO</button>
+      </div>`;
+    c.appendChild(d);
+  });
+  const jd = document.createElement('div');
+  jd.style.marginTop = '10px';
+  jd.innerHTML = `
+    <label style="font-size:11px;font-weight:bold;color:#555;display:block;margin-bottom:5px;">
+      Justificativa para Direito de Recusa:
+    </label>
+    <textarea id="s-just" rows="3"
+      style="width:100%;border:1px solid #ddd;border-radius:5px;
+             padding:8px;font-family:Arial;font-size:12px;outline:none;resize:none;"
+      placeholder="Preencha apenas se exercer o direito de recusa..."
+      oninput="state.justificativa=this.value"></textarea>`;
+  c.appendChild(jd);
+}
+
+function setParecer(idx, val) {
+  state.parecer[idx] = val;
+  document.getElementById(`ps${idx}`).className = val === 'sim' ? 'on-sim' : '';
+  document.getElementById(`pn${idx}`).className = val === 'nao' ? 'on-nao' : '';
+}
+
+// ── DOCUMENTO ─────────────────────────────────────────────────
+function buildDocument() {
+  const emps = loadEmps();
+  document.getElementById('d-sub').textContent     = document.getElementById('s-sub').value.trim() || '—';
+  document.getElementById('d-data').textContent    = document.getElementById('s-data').value;
+  document.getElementById('d-inicio').textContent  = document.getElementById('s-inicio').value;
+  document.getElementById('d-termino').textContent = document.getElementById('s-termino').value || '—';
+  buildDocOS();
+  buildDocChecklist();
+  buildDocRisks();
+  buildDocParecer();
+  buildDocSig(emps);
+}
+
+function buildDocOS() {
+  const t = document.getElementById('d-os-table');
+  t.innerHTML = `
+    <thead>
+      <tr>
+        <th class="d-os-num">#</th>
+        <th>Nº Ordem de Serviço</th>
+        <th>Nº Padrão / Revisão</th>
+        <th class="d-os-num d-os-sep">#</th>
+        <th>Nº Ordem de Serviço</th>
+        <th>Nº Padrão / Revisão</th>
+      </tr>
+    </thead><tbody></tbody>`;
+  const tb = t.querySelector('tbody');
+  for (let i = 0; i < 5; i++) {
+    const n1 = g(`os-num${i}`)?.value   || '';
+    const p1 = g(`os-pad${i}`)?.value   || '';
+    const n2 = g(`os-num${i+5}`)?.value || '';
+    const p2 = g(`os-pad${i+5}`)?.value || '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="d-os-num">${i+1}</td>
+      <td>${esc(n1)}</td><td>${esc(p1)}</td>
+      <td class="d-os-num d-os-sep">${i+6}</td>
+      <td>${esc(n2)}</td><td>${esc(p2)}</td>`;
+    tb.appendChild(tr);
+  }
+}
+
+function buildDocChecklist() {
+  const tbl = document.getElementById('d-chk-table');
+  tbl.innerHTML = '';
+  let idx = 0;
+  const CAT_DOC = {
+    'INDIVÍDUO':     'INDIVÍDUO',
+    'MATERIAL':      'MATERIAL',
+    'MEIO AMBIENTE': 'MEIO AMBIENTE',
+    'TAREFA':        'TAREFA'
+  };
+  CHECKLIST_DATA.forEach(cat => {
+    const docLabel = CAT_DOC[cat.cat] ?? cat.cat;
+    cat.items.forEach((txt, i) => {
+      const v  = state.checklist[idx];
+      const tr = document.createElement('tr');
+      tr.className = 'd-chk-row';
+      const catTd = i === 0
+        ? `<td class="d-cat-cell" rowspan="3">
+             <span class="d-cat-inner">${esc(docLabel)}</span>
+           </td>`
+        : '';
+      tr.innerHTML = `
+        ${catTd}
+        <td class="d-chk-text">${txt}</td>
+        <td class="d-sim-cell">${v  ? '✗' : ''}</td>
+        <td class="d-nao-cell">${!v ? '✗' : ''}</td>`;
+      tbl.appendChild(tr);
+      idx++;
+    });
+  });
+}
+
+function buildDocRisks() {
+  const tb    = document.getElementById('d-risk-tbody');
+  tb.innerHTML = '';
+  const risks = loadRisks();
+  const all = [
+    ...risks.filter(r => state.selRiskIds.has(r.id)).map(r => ({n:r.n, m:r.m})),
+    ...state.customRisks
+  ];
+  for (let i = 0; i < MAX_RISKS; i++) {
+    const r  = all[i];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r ? esc(r.n) : ''}</td><td>${r ? esc(r.m) : ''}</td>`;
+    tb.appendChild(tr);
+  }
+}
+
+function buildDocParecer() {
+  const c = document.getElementById('d-parecer');
+  c.innerHTML = '';
+  const hdr = document.createElement('div');
+  hdr.className = 'd-sec-hdr';
+  hdr.innerHTML = `<span>PARECER DA EQUIPE EXECUTORA</span>
+                   <div class="d-sn"><span>SIM</span><span>NÃO</span></div>`;
+  c.appendChild(hdr);
+  PARECER_DATA.forEach((p, i) => {
+    const val = state.parecer[i];
+    const row = document.createElement('div');
+    row.className = `d-par-row ${p.cls}`;
+    row.innerHTML = `
+      <div class="d-par-txt">${p.txt}</div>
+      <div class="d-par-sn">
+        <span>${val === 'sim' ? '✗' : '☐'}</span>
+        <span>${val === 'nao' ? '✗' : '☐'}</span>
+      </div>`;
+    c.appendChild(row);
+  });
+  const jd = document.createElement('div');
+  jd.className = 'd-just';
+  jd.innerHTML = `
+    <strong>Justificativa para Direito de Recusa:</strong>
+    <div class="d-just-val">${esc(state.justificativa)}</div>`;
+  c.appendChild(jd);
+}
+
+function buildDocSig(emps) {
+  const tb  = document.getElementById('d-sig-tbody');
+  tb.innerHTML = '';
+  const lId = state.selTeamIds[state.liderIndex];
+  state.selTeamIds.forEach((eid, pos) => {
+    const emp  = emps.find(e => e.id === eid);
+    if (!emp) return;
+    const func = eid === lId ? 'RESPONSÁVEL PELA EQUIPE' : (emp.func || '');
+    const tr   = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="d-func-cell">${esc(func)}</td>
+      <td style="font-size:9px;padding:3px 5px;">${esc(emp.nome)}</td>
+      <td style="font-size:9px;padding:3px 5px;">${esc(emp.reg)}</td>
+      <td style="padding:2px 3px;width:108px;">
+        <canvas id="sc${pos}" class="sig-canvas" width="100" height="30"></canvas>
+        <span class="sig-clear" onclick="clearSig(${pos})">limpar</span>
+      </td>`;
+    tb.appendChild(tr);
+  });
+  const obs = document.createElement('tr');
+  obs.className = 'd-obs-row';
+  obs.innerHTML = `
+    <td class="d-func-cell" style="font-size:7px;background:#DCDCDC;">OBSERVADOR DESIGNADO¹</td>
+    <td colspan="3"></td>`;
+  tb.appendChild(obs);
+  requestAnimationFrame(() => {
+    state.selTeamIds.forEach((eid, pos) => {
+      initCanvas(pos);
+      // ← NOVO: auto-carrega assinatura salva do funcionário
+      const emp = emps.find(e => e.id === eid);
+      if (emp && emp.sig) {
+        loadSigToCanvas(`sc${pos}`, emp.sig);
+      }
+    });
+  });
+}
+
+// ── CANVAS (documento) ────────────────────────────────────────
+function initCanvas(i) {
+  const cv = document.getElementById(`sc${i}`);
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  let dn = false, lx = 0, ly = 0;
+  const pt = e => {
+    const r = cv.getBoundingClientRect();
+    const s = e.touches ? e.touches[0] : e;
+    return {
+      x: (s.clientX - r.left) * (cv.width  / r.width),
+      y: (s.clientY - r.top)  * (cv.height / r.height)
+    };
+  };
+  const start = e => { e.preventDefault(); dn=true; const p=pt(e); lx=p.x; ly=p.y; };
+  const move  = e => {
+    e.preventDefault();
+    if (!dn) return;
+    const p = pt(e);
+    ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(p.x,p.y);
+    ctx.strokeStyle='#000'; ctx.lineWidth=1.4; ctx.lineCap='round'; ctx.stroke();
+    lx=p.x; ly=p.y;
+  };
+  const end = () => { dn = false; };
+  cv.addEventListener('mousedown',  start);
+  cv.addEventListener('mousemove',  move);
+  cv.addEventListener('mouseup',    end);
+  cv.addEventListener('mouseleave', end);
+  cv.addEventListener('touchstart', start, {passive:false});
+  cv.addEventListener('touchmove',  move,  {passive:false});
+  cv.addEventListener('touchend',   end);
+}
+
+function clearSig(i) {
+  const cv = document.getElementById(`sc${i}`);
+  if (cv) cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+}
+
+// ── NAVEGAÇÃO ─────────────────────────────────────────────────
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'screen-employees') {
+    renderEmpDB();
+    setTimeout(initEmpSigCanvas, 100); // ← NOVO: inicia canvas ao entrar na tela
+  }
+  if (id === 'screen-risks') renderRiskDB();
+}
+
+function goToPreview() {
+  buildDocument();
+  goTo('screen-preview');
+}
+
+// ── PDF ───────────────────────────────────────────────────────
+async function gerarPDF() {
+  const doc     = document.getElementById('apr-doc');
+  const loading = document.getElementById('loading');
+  document.querySelectorAll('.sig-clear').forEach(e => e.style.display = 'none');
+  loading.classList.add('on');
+  try {
+    const cv = await html2canvas(doc, {
+      scale: 2.5, useCORS: true, allowTaint: true,
+      backgroundColor: '#ffffff', logging: false
+    });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const H   = (cv.height / cv.width) * 210;
+    pdf.addImage(cv.toDataURL('image/jpeg', 0.96), 'JPEG', 0, 0, 210, H);
+    const sub = document.getElementById('s-sub').value.trim() || 'APR';
+    const dt  = document.getElementById('s-data').value.replace(/\//g,'');
+    pdf.save(`APR_${sub}_${dt}.pdf`);
+  } catch (err) {
+    console.error(err);
+    alert('Erro ao gerar PDF. Verifique o console.');
+  } finally {
+    document.querySelectorAll('.sig-clear').forEach(e => e.style.display = '');
+    loading.classList.remove('on');
+  }
+}
+
+// ── RESET ─────────────────────────────────────────────────────
+function resetForm() {
+  if (!confirm('Limpar tudo e iniciar nova APR?')) return;
+  state.checklist    = Array(12).fill(true);
+  state.selRiskIds   = new Set();
+  state.customRisks  = [];
+  state.selTeamIds   = [];
+  state.liderIndex   = 0;
+  state.parecer      = [null, null, null];
+  state.justificativa= '';
+  document.getElementById('s-sub').value     = '';
+  document.getElementById('s-termino').value = '';
+  setDateTime();
+  buildSetupChecklist();
+  buildSetupParecer();
+  renderTeamList();
+  renderRiskList();
+  goTo('screen-setup');
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function setDateTime() {
+  const n = new Date(), p = v => String(v).padStart(2,'0');
+  document.getElementById('s-data').value   =
+    `${p(n.getDate())}/${p(n.getMonth()+1)}/${String(n.getFullYear()).slice(-2)}`;
+  document.getElementById('s-inicio').value =
+    `${p(n.getHours())}:${p(n.getMinutes())}`;
+}
+
+function fmtHora(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length >= 3) v = v.slice(0,2) + ':' + v.slice(2,4);
+  el.value = v;
+}
+
+const g   = id => document.getElementById(id);
+const esc = s  => String(s||'')
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ── INIT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadRisks();
+  setDateTime();
+  buildSetupOS();
+  buildSetupChecklist();
+  buildSetupParecer();
+  renderTeamList();
+  renderRiskList();
+});
+</script>
+
+</body></html>
