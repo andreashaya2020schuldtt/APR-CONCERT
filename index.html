@@ -470,13 +470,13 @@ body {
   writing-mode: horizontal-lr;
   white-space: normal;
   display: block;
-  font-size: 7px;        /* ← reduz para caber no rowspan */
+  font-size: 7px;
   font-weight: bold;
   letter-spacing: 0.5px;
   text-align: center;
   text-transform: uppercase;
-letter-spacing: 1.5px;   /* ← aumente até ficar bom */
-margin: auto;          /* ← centraliza o elemento */
+  letter-spacing: 1.5px;
+  margin: auto;
   display: block;
   text-align: center;
 }
@@ -574,7 +574,7 @@ margin: auto;          /* ← centraliza o elemento */
 .form-field textarea:focus { border-color: var(--blue-mid); }
 .form-field textarea { resize: none; }
 
-/* ── NOVO: PAD DE ASSINATURA NO CADASTRO ── */
+/* ── PAD DE ASSINATURA NO CADASTRO ── */
 .emp-sig-wrap {
   border: 1.5px dashed #a0b8d0;
   border-radius: 6px;
@@ -601,6 +601,42 @@ margin: auto;          /* ← centraliza o elemento */
   position: relative;
   z-index: 1;
 }
+
+/* ── [NOVO] BOTÕES DE AÇÃO DA ASSINATURA ── */
+.sig-action-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 7px;
+}
+.sig-action-row .btn-secondary {
+  flex: 1;
+  padding: 8px;
+  font-size: 11px;
+  border-radius: 5px;
+  text-align: center;
+}
+/* Label que funciona como botão para o input file */
+.sig-upload-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #fff;
+  border: 2px solid var(--blue-mid);
+  border-radius: 7px;
+  padding: 8px;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--blue-mid);
+  cursor: pointer;
+  font-family: Arial;
+  text-align: center;
+  user-select: none;
+}
+.sig-upload-label:active { background: var(--blue-vlight); }
+/* ── FIM NOVOS ESTILOS ── */
+
 /* Indicador de assinatura salva na lista */
 .sig-badge {
   display: inline-flex;
@@ -873,20 +909,33 @@ margin: auto;          /* ← centraliza o elemento */
         <input type="text" id="emp-func" placeholder="Ex: Técnico de Campo" autocomplete="off">
       </div>
 
-      <!-- ── NOVO: CAMPO DE ASSINATURA ── -->
+      <!-- ══════════════════════════════════════════════════════
+           CAMPO DE ASSINATURA — desenho + upload de imagem
+           ══════════════════════════════════════════════════════ -->
       <div class="form-field">
         <label>✍️ Assinatura</label>
         <small style="display:block;font-size:10px;color:#888;margin-bottom:6px;">
           Capture uma vez — será aplicada automaticamente em todas as APRs.
+          Desenhe no campo abaixo ou faça upload de uma imagem.
         </small>
+
+        <!-- Pad de desenho -->
         <div class="emp-sig-wrap">
           <canvas id="emp-sig-canvas" width="600" height="90" class="emp-sig-canvas"></canvas>
         </div>
-        <button class="btn-secondary" onclick="clearEmpSig()" style="width:100%;margin-top:7px;padding:8px;font-size:11px;border-radius:5px;">
-          🗑️ Limpar Assinatura
-        </button>
+
+        <!-- [NOVO] Botões lado a lado: Limpar | Upload -->
+        <div class="sig-action-row">
+          <button class="btn-secondary" onclick="clearEmpSig()" style="flex:1;padding:8px;font-size:11px;border-radius:5px;">
+            🗑️ Limpar
+          </button>
+          <label class="sig-upload-label">
+            📎 Upload de Imagem
+            <input type="file" id="emp-sig-upload" accept="image/*" style="display:none;" onchange="uploadEmpSig(this)">
+          </label>
+        </div>
       </div>
-      <!-- ── FIM CAMPO ASSINATURA ── -->
+      <!-- ══════════════════════════════════════════════════════ -->
 
       <div style="display:flex;gap:8px;">
         <button class="btn-primary" onclick="saveEmployee()" style="padding:11px;">Salvar</button>
@@ -999,11 +1048,11 @@ const state = {
 function loadEmps()      { return JSON.parse(localStorage.getItem('apr_emps') || '[]'); }
 function storeEmps(list) { localStorage.setItem('apr_emps', JSON.stringify(list)); }
 
-// ── NOVO: FUNÇÕES DE ASSINATURA DO FUNCIONÁRIO ────────────────
+// ── FUNÇÕES DE ASSINATURA DO FUNCIONÁRIO ──────────────────────
 
 function initEmpSigCanvas() {
   const cv = document.getElementById('emp-sig-canvas');
-  if (!cv || cv._sigInit) return;   // evita re-registro de eventos
+  if (!cv || cv._sigInit) return;
   cv._sigInit = true;
   const ctx = cv.getContext('2d');
   let dn = false, lx = 0, ly = 0;
@@ -1057,7 +1106,42 @@ function loadEmpSigToCanvas(sig) {
   img.src = sig;
 }
 
-// Carrega assinatura salva em qualquer canvas pelo ID
+// ══════════════════════════════════════════════════════════════
+// [NOVO] uploadEmpSig — carrega arquivo de imagem no canvas
+// Mantém proporção e centraliza dentro do canvas
+// ══════════════════════════════════════════════════════════════
+function uploadEmpSig(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Reset do input para permitir re-upload do mesmo arquivo
+  input.value = '';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const cv  = document.getElementById('emp-sig-canvas');
+      const ctx = cv.getContext('2d');
+      ctx.clearRect(0, 0, cv.width, cv.height);
+
+      // Calcula escala proporcional para caber no canvas
+      const scaleX = cv.width  / img.width;
+      const scaleY = cv.height / img.height;
+      const scale  = Math.min(scaleX, scaleY) * 0.9; // 0.9 → margem interna leve
+
+      // Centraliza
+      const x = (cv.width  - img.width  * scale) / 2;
+      const y = (cv.height - img.height * scale) / 2;
+
+      ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+// ══════════════════════════════════════════════════════════════
+
 function loadSigToCanvas(canvasId, sigData) {
   const cv = document.getElementById(canvasId);
   if (!cv || !sigData) return;
@@ -1067,20 +1151,18 @@ function loadSigToCanvas(canvasId, sigData) {
   };
   img.src = sigData;
 }
-// ── FIM FUNÇÕES ASSINATURA ────────────────────────────────────
 
 function saveEmployee() {
   const id   = document.getElementById('emp-edit-id').value;
   const nome = document.getElementById('emp-nome').value.trim();
   const reg  = document.getElementById('emp-reg').value.trim();
   const func = document.getElementById('emp-func').value.trim();
-  const sig  = getEmpSig(); // ← NOVO: captura assinatura do canvas
+  const sig  = getEmpSig();
   if (!nome) { alert('Informe o nome.'); return; }
   if (!reg)  { alert('Informe o documento/registro.'); return; }
   const list = loadEmps();
   if (id) {
     const i = list.findIndex(e => e.id === id);
-    // Se o canvas estiver vazio ao editar, preserva a assinatura anterior
     if (i !== -1) list[i] = { id, nome, reg, func, sig: sig || list[i].sig || '' };
   } else {
     list.push({ id: Date.now().toString(), nome, reg, func, sig });
@@ -1099,7 +1181,6 @@ function editEmployee(id) {
   document.getElementById('emp-reg').value      = emp.reg;
   document.getElementById('emp-func').value     = emp.func || '';
   document.getElementById('emp-form-title').textContent = '✏️ Editar Funcionário';
-  // ← NOVO: carrega assinatura existente no canvas
   clearEmpSig();
   if (emp.sig) setTimeout(() => loadEmpSigToCanvas(emp.sig), 80);
   window.scrollTo(0, 0);
@@ -1120,7 +1201,7 @@ function clearEmpForm() {
     document.getElementById(id).value = '';
   });
   document.getElementById('emp-form-title').textContent = '➕ Cadastrar Funcionário';
-  clearEmpSig(); // ← NOVO: limpa canvas ao resetar formulário
+  clearEmpSig();
 }
 
 function renderEmpDB() {
@@ -1134,7 +1215,6 @@ function renderEmpDB() {
       </div>`;
     return;
   }
-  // ← NOVO: badge indicando se a assinatura está salva
   c.innerHTML = list.map(e => `
     <div class="emp-db-item">
       <div class="emp-db-info">
@@ -1589,7 +1669,6 @@ function buildDocSig(emps) {
   requestAnimationFrame(() => {
     state.selTeamIds.forEach((eid, pos) => {
       initCanvas(pos);
-      // ← NOVO: auto-carrega assinatura salva do funcionário
       const emp = emps.find(e => e.id === eid);
       if (emp && emp.sig) {
         loadSigToCanvas(`sc${pos}`, emp.sig);
@@ -1643,7 +1722,7 @@ function goTo(id) {
   window.scrollTo(0, 0);
   if (id === 'screen-employees') {
     renderEmpDB();
-    setTimeout(initEmpSigCanvas, 100); // ← NOVO: inicia canvas ao entrar na tela
+    setTimeout(initEmpSigCanvas, 100);
   }
   if (id === 'screen-risks') renderRiskDB();
 }
@@ -1653,32 +1732,81 @@ function goToPreview() {
   goTo('screen-preview');
 }
 
-// ── PDF ───────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// [MODIFICADO] gerarPDF
+// Correção mobile: windowWidth:794 força layout A4 no html2canvas
+// independente do viewport do dispositivo.
+// Desktop: continua funcionando igual — sem regressão.
+// Multi-página: loop automático caso o conteúdo ultrapasse 297mm.
+// ══════════════════════════════════════════════════════════════
 async function gerarPDF() {
   const doc     = document.getElementById('apr-doc');
   const loading = document.getElementById('loading');
+
+  // Oculta elementos de UI que não devem aparecer no PDF
   document.querySelectorAll('.sig-clear').forEach(e => e.style.display = 'none');
   loading.classList.add('on');
+
+  // Guarda e força largura A4 no elemento antes de capturar
+  // (dupla garantia junto com windowWidth — cobre edge cases de CSS mobile)
+  const prevWidth    = doc.style.width;
+  const prevMaxWidth = doc.style.maxWidth;
+  doc.style.width    = '794px';
+  doc.style.maxWidth = '794px';
+
   try {
-    const cv = await html2canvas(doc, {
-      scale: 2.5, useCORS: true, allowTaint: true,
-      backgroundColor: '#ffffff', logging: false
+    const canvas = await html2canvas(doc, {
+      scale:           2,           // Resolução alta — bom para desktop e mobile
+      useCORS:         true,
+      allowTaint:      true,
+      backgroundColor: '#ffffff',
+      logging:         false,
+      windowWidth:     794,         // ← CHAVE: renderiza como viewport A4 (corrige mobile)
+      width:           794,         // ← largura de captura fixa A4
+      scrollX:         0,
+      scrollY:         -window.scrollY,
     });
+
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-    const H   = (cv.height / cv.width) * 210;
-    pdf.addImage(cv.toDataURL('image/jpeg', 0.96), 'JPEG', 0, 0, 210, H);
+    const pdf  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const pdfW    = pdf.internal.pageSize.getWidth();    // 210 mm
+    const pdfH    = pdf.internal.pageSize.getHeight();   // 297 mm
+    const ratio   = pdfW / canvas.width;                 // mm/px
+    const imgH    = canvas.height * ratio;               // altura total do conteúdo em mm
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.96);
+
+    // Primeira página
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, imgH);
+
+    // Páginas adicionais — caso o documento ultrapasse uma página
+    let restante = imgH - pdfH;
+    while (restante > 0) {
+      const posY = restante - imgH;   // offset negativo para continuar a imagem
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, posY, pdfW, imgH);
+      restante -= pdfH;
+    }
+
+    // Nome do arquivo com subestação + data
     const sub = document.getElementById('s-sub').value.trim() || 'APR';
-    const dt  = document.getElementById('s-data').value.replace(/\//g,'');
+    const dt  = document.getElementById('s-data').value.replace(/\//g, '');
     pdf.save(`APR_${sub}_${dt}.pdf`);
+
   } catch (err) {
     console.error(err);
     alert('Erro ao gerar PDF. Verifique o console.');
   } finally {
+    // Restaura estilos originais do elemento
+    doc.style.width    = prevWidth;
+    doc.style.maxWidth = prevMaxWidth;
+    // Restaura elementos de UI
     document.querySelectorAll('.sig-clear').forEach(e => e.style.display = '');
     loading.classList.remove('on');
   }
 }
+// ══════════════════════════════════════════════════════════════
 
 // ── RESET ─────────────────────────────────────────────────────
 function resetForm() {
@@ -1730,5 +1858,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRiskList();
 });
 </script>
+
 
 </body></html>
